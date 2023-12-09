@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
+use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\API\TaskRequest;
+use App\Http\Resources\TaskResource;
 
 class TaskController extends Controller
 {
@@ -12,15 +15,24 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
+        // return Task::all();
+        return TaskResource::collection(Task::all());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
-        //
+        Task::create([
+            'user_id' =>$request->user_id,
+            'name' => $request->name,
+            'status' => $request->status
+        ]);
+        // return $request->all();
+        return response()->json([
+            'message' => 'Task saved successfully'
+        ], 201);
     }
 
     /**
