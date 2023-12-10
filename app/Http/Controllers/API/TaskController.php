@@ -16,7 +16,7 @@ class TaskController extends Controller
     public function index()
     {
         // return Task::all();
-        return TaskResource::collection(Task::all());
+        return TaskResource::collection(Task::paginate());
     }
 
     /**
@@ -25,7 +25,7 @@ class TaskController extends Controller
     public function store(TaskRequest $request)
     {
         Task::create([
-            'user_id' =>$request->user_id,
+            'user_id' => $request->user_id,
             'name' => $request->name,
             'status' => $request->status
         ]);
@@ -38,24 +38,31 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Task $task)
     {
-        //
+        return TaskResource::make($task);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Task $task)
     {
-        //
+        // return 'update';
+        $task->update([
+            'name' => $request->name
+        ]);
+        return TaskResource::make($task);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Task $task)
     {
-        //
+        $task->delete();
+        return response()->json([
+            'message' => 'Task deleted successfully'
+        ], 201);
     }
 }
