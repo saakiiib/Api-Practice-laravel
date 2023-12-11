@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\V2;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
@@ -10,13 +10,17 @@ use App\Http\Resources\TaskResource;
 
 class TaskController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Task::class());
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // return Task::all();
-        return TaskResource::collection(Task::paginate());
+        $user = request()->user();
+        return TaskResource::collection(Task::where('user_id', $user->id)->paginate());
     }
 
     /**
@@ -40,7 +44,9 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        return TaskResource::make($task);
+        // $this->authorize('view', $task);
+        $user = request()->user();
+        return TaskResource::make(Task::where('user_id', $user->id)->first());
     }
 
     /**
@@ -48,7 +54,7 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
-        // return 'update';
+        $this->authorize('view', $task);
         $task->update([
             'name' => $request->name
         ]);
@@ -60,6 +66,7 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        $this->authorize('view', $task);
         $task->delete();
         return response()->json([
             'message' => 'Task deleted successfully'
